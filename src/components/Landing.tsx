@@ -1,12 +1,13 @@
 import { motion } from 'motion/react';
 import { Profile } from '../types';
+import CloudImage from './CloudImage';
 
 export default function Landing({ profile }: { profile: Profile | null }) {
   return (
     <section id="home" className="relative h-screen min-h-[700px] flex items-end justify-start overflow-hidden px-8 md:px-20 pb-20">
       {/* Background Image / Placeholder */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <CloudImage 
           src={profile?.mainImageUrl || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1920'} 
           alt="Main Profile" 
           className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-1000"

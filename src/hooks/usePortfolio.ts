@@ -77,7 +77,8 @@ export function usePortfolio() {
               instagram: 'https://instagram.com/yeon_shots',
               mainImageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1920',
               aboutImageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000',
-              galleryImages: []
+              galleryImages: [],
+              bio: '여기에 자기소개를 입력해주세요. 배우로서의 철학이나 경력을 자유롭게 적으실 수 있습니다.'
             });
 
             // Initial Work

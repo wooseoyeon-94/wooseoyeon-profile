@@ -2,8 +2,9 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Save, Plus, Trash2, LogIn, AlertCircle, Upload } from 'lucide-react';
 import { db, signInWithGoogle, auth } from '../lib/firebase';
-import { doc, setDoc, addDoc, collection, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, deleteDoc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { PortfolioData, Work, Testimonial, Asset, Profile } from '../types';
+import CloudImage from './CloudImage';
 
 export default function AdminPanel({ 
   isOpen, 
@@ -120,13 +121,13 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
 
-        // Max dimension - increased to 1200 for better quality while staying safe
-        const MAX_SIDE = 1200;
+        // Max dimension for hosting - can be larger now that we have separate docs
+        const MAX_SIDE = 1600;
         if (width > height) {
           if (width > MAX_SIDE) {
             height *= MAX_SIDE / width;
@@ -144,10 +145,24 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Compress as JPEG - 0.7 is a good balance for higher resolution
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        onChange(compressedDataUrl);
-        setIsProcessing(false);
+        // Compress as JPEG
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        
+        try {
+          // Upload to 'uploads' collection
+          const docRef = await addDoc(collection(db, 'uploads'), {
+            data: compressedDataUrl,
+            createdAt: serverTimestamp()
+          });
+          
+          // Use a special prefix so the app knows this is a hosted image
+          onChange(`storage://${docRef.id}`);
+        } catch (error) {
+          console.error("Upload failed:", error);
+          alert("Upload failed. Image might be too large or database permissions denied.");
+        } finally {
+          setIsProcessing(false);
+        }
       };
       img.src = event.target?.result as string;
     };
@@ -182,8 +197,18 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
           {isProcessing ? <div className="w-4 h-4 border-2 border-current border-t-transparent animate-spin rounded-full" /> : <Upload size={14} />}
         </button>
       </div>
-      {value && value.startsWith('data:') && (
-        <p className="text-[9px] text-gray-400 italic">Optimized image stored</p>
+      {value && (
+        <div className="flex items-start space-x-4">
+          <div className="w-16 h-16 bg-gray-100 border overflow-hidden">
+            <CloudImage src={value} className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[9px] text-gray-400 italic">
+              {value.startsWith('storage://') ? 'Image hosted on cloud' : 
+               value.startsWith('data:') ? 'Legacy Base64 data' : 'External URL'}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -230,24 +255,57 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
 
   return (
     <div className="space-y-12">
-      <div className="grid grid-cols-2 gap-6">
-        {fields.map(f => (
-          <div key={f.key} className={f.key.toLowerCase().includes('image') ? 'col-span-2' : ''}>
-            {f.key.toLowerCase().includes('image') ? (
-              <ImageInput label={f.label} value={(form as any)[f.key] || ''} onChange={(v) => setForm({ ...form, [f.key]: v })} />
-            ) : (
-              <div>
-                <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">{f.label}</label>
-                <input 
-                  type="text" 
-                  className="w-full border p-2 text-sm"
-                  value={(form as any)[f.key] || ''}
-                  onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                />
-              </div>
-            )}
+      {/* Bio Section */}
+      <div className="space-y-4">
+        <h3 className="text-xs font-bold tracking-[0.4em] uppercase text-gray-500 pb-2 border-b">Biography & Specialties</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">About Me (Biography)</label>
+            <textarea 
+              className="w-full border p-3 text-sm min-h-[150px] leading-relaxed"
+              value={form.bio || ''}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              placeholder="Introduce yourself to visitors..."
+            />
           </div>
-        ))}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">Specialties (Comma separated)</label>
+            <input 
+              type="text" 
+              className="w-full border p-2 text-sm"
+              value={Array.isArray(form.specialties) ? form.specialties.join(', ') : (form.specialties || '')}
+              onChange={(e) => {
+                const val = e.target.value;
+                setForm({ ...form, specialties: val.split(',').map(s => s.trim()).filter(s => s !== '') });
+              }}
+              placeholder="e.g. 무용, 바이올린, 필라테스"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Grid Fields */}
+      <div className="space-y-4">
+        <h3 className="text-xs font-bold tracking-[0.4em] uppercase text-gray-500 pb-2 border-b">Basic Information</h3>
+        <div className="grid grid-cols-2 gap-6">
+          {fields.map(f => (
+            <div key={f.key} className={f.key.toLowerCase().includes('image') ? 'col-span-2' : ''}>
+              {f.key.toLowerCase().includes('image') ? (
+                <ImageInput label={f.label} value={(form as any)[f.key] || ''} onChange={(v) => setForm({ ...form, [f.key]: v })} />
+              ) : (
+                <div>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">{f.label}</label>
+                  <input 
+                    type="text" 
+                    className="w-full border p-2 text-sm"
+                    value={(form as any)[f.key] || ''}
+                    onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-6 pt-6 border-t">
@@ -269,7 +327,7 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
         </div>
       </div>
       <div className="bg-amber-50 p-4 border border-amber-200 text-[10px] text-amber-700 leading-relaxed uppercase tracking-wider">
-        Note: Total profile data (including all 7 images) must fit within 1MB. The app automatically optimizes your uploads, but extremely high-res source files might still hit the limit.
+        Note: Images are now hosted in a separate storage collection to prevent data loss. You can upload high-quality shots up to 1MB each.
       </div>
       <button 
         onClick={save} 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, X, ExternalLink } from 'lucide-react';
 import { Work } from '../types';
+import CloudImage from './CloudImage';
 
 export default function Works({ works, isPreview, onViewAll }: { works: Work[], isPreview?: boolean, onViewAll?: () => void }) {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
@@ -45,7 +46,7 @@ export default function Works({ works, isPreview, onViewAll }: { works: Work[], 
                   onClick={() => setSelectedWork(work)}
                 >
                   <div className="aspect-video bg-[#DDE1E5] mb-6 overflow-hidden">
-                    <img 
+                    <CloudImage 
                       src={work.imageUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800'} 
                       alt={work.title} 
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
@@ -132,7 +133,7 @@ export default function Works({ works, isPreview, onViewAll }: { works: Work[], 
                 </div>
                 <div className="grid grid-cols-1 gap-1">
                   <div className="aspect-video bg-gray-100 overflow-hidden">
-                    <img 
+                    <CloudImage 
                       src={selectedWork.imageUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800'} 
                       alt={`${selectedWork.title} Main`} 
                       className="w-full h-full object-cover"
@@ -142,7 +143,7 @@ export default function Works({ works, isPreview, onViewAll }: { works: Work[], 
                     <div className="grid grid-cols-2 gap-1 h-full">
                       {selectedWork.imageUrls.filter(url => url).map((url, i) => (
                         <div key={i} className="aspect-video bg-gray-200 overflow-hidden">
-                          <img src={url} alt={`${selectedWork.title} Still ${i+1}`} className="w-full h-full object-cover" />
+                          <CloudImage src={url} alt={`${selectedWork.title} Still ${i+1}`} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>

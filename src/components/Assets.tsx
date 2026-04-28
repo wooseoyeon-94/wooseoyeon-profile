@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Shirt, Box, FileText } from 'lucide-react';
 import { Asset } from '../types';
+import CloudImage from './CloudImage';
 
 export default function Assets({ assets, isPreview, onViewAll }: { assets: Asset[], isPreview?: boolean, onViewAll?: () => void }) {
   const categories = [
@@ -70,7 +71,7 @@ export default function Assets({ assets, isPreview, onViewAll }: { assets: Asset
                     >
                       {asset.imageUrl && (
                         <div className="aspect-square bg-white/50 mb-2 overflow-hidden border border-brand-text/5 relative">
-                          <img 
+                          <CloudImage 
                             src={asset.imageUrl} 
                             alt={asset.name} 
                             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"

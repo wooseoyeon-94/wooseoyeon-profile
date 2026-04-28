@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Instagram, Phone, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Profile } from '../types';
+import CloudImage from './CloudImage';
 
 export default function About({ profile }: { profile: Profile | null }) {
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -43,16 +44,20 @@ export default function About({ profile }: { profile: Profile | null }) {
               className="aspect-[3/4] bg-gray-200 overflow-hidden relative border border-brand-text/10 group"
             >
               <AnimatePresence mode="wait">
-                <motion.img 
+                <motion.div
                   key={currentIdx}
-                  src={gallery[currentIdx]} 
-                  alt={`Profile ${currentIdx + 1}`} 
+                  className="w-full h-full"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="w-full h-full object-cover"
-                />
+                >
+                  <CloudImage 
+                    src={gallery[currentIdx]} 
+                    alt={`Profile ${currentIdx + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
               </AnimatePresence>
 
               {gallery.length > 1 && (
@@ -82,7 +87,7 @@ export default function About({ profile }: { profile: Profile | null }) {
                     onClick={() => setCurrentIdx(i)}
                     className={`aspect-[3/4] border transition-all overflow-hidden ${i === currentIdx ? 'border-brand-text' : 'border-transparent opacity-40 hover:opacity-100'}`}
                   >
-                    <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                    <CloudImage src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -96,7 +101,7 @@ export default function About({ profile }: { profile: Profile | null }) {
             viewport={{ once: true }}
           >
             <div className="flex justify-between items-baseline mb-6">
-              <h2 className="section-label m-0">Profile</h2>
+              <h2 className="section-label m-0">About</h2>
               {profile.pdfUrl && (
                 <a 
                   href={profile.pdfUrl} 
@@ -118,9 +123,20 @@ export default function About({ profile }: { profile: Profile | null }) {
               ))}
               <div className="flex items-center">
                 <span className="text-[10px] uppercase tracking-widest opacity-40 italic w-24">Social</span>
-                <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">@yeon_shots</a>
+                <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                  {profile.instagram?.split('/').pop()?.startsWith('@') ? profile.instagram?.split('/').pop() : `@${profile.instagram?.split('/').pop() || 'yeon_shots'}`}
+                </a>
               </div>
             </div>
+
+            {profile.bio && (
+              <div className="mb-12">
+                <h3 className="section-label">Biography</h3>
+                <div className="text-sm border-t border-brand-text/10 pt-4 text-gray-700 leading-loose whitespace-pre-wrap font-light italic">
+                  {profile.bio}
+                </div>
+              </div>
+            )}
 
             <div className="mb-12">
               <h3 className="section-label">Specialties</h3>

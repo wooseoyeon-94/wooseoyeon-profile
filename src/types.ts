@@ -13,6 +13,7 @@ export interface Profile {
   mainImageUrl: string;
   aboutImageUrl: string;
   galleryImages?: string[];
+  bio?: string;
 }
 
 export interface Work {

@@ -51,6 +51,8 @@ service cloud.firestore {
              (!('mainImageUrl' in data) || (data.mainImageUrl is string && data.mainImageUrl.size() <= 1048576)) &&
              (!('aboutImageUrl' in data) || (data.aboutImageUrl is string && data.aboutImageUrl.size() <= 1048576)) &&
              (!('pdfUrl' in data) || (data.pdfUrl is string && data.pdfUrl.size() <= 500)) &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 5000)) &&
+             (!('specialties' in data) || (data.specialties is list && data.specialties.size() <= 20)) &&
              (!('galleryImages' in data) || (data.galleryImages is list && data.galleryImages.size() <= 5));
     }
 
@@ -94,6 +96,16 @@ service cloud.firestore {
              data.name is string && data.name.size() <= 200 &&
              (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 1048576)) &&
              (!('description' in data) || (data.description is string && data.description.size() <= 2000));
+    }
+
+    // Uploaded Images Rules
+    match /uploads/{uploadId} {
+      allow read: if true;
+      allow create: if isAdmin() && 
+                    incoming().data is string && 
+                    incoming().data.size() <= 1048576 &&
+                    incoming().createdAt == request.time;
+      allow update, delete: if isAdmin();
     }
   }
 }
