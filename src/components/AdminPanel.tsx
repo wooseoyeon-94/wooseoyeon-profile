@@ -217,6 +217,7 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
 function ProfileForm({ profile }: { profile: Profile | null }) {
   const [form, setForm] = useState<Partial<Profile>>(profile || {});
   const [isSaving, setIsSaving] = useState(false);
+  const [specialtiesText, setSpecialtiesText] = useState(profile?.specialties?.join(', ') || '');
 
   // Initialize galleryImages with 5 empty strings if it doesn't exist or is shorter
   const galleryImages = form.galleryImages || [];
@@ -227,6 +228,7 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
     try {
       const dataToSave = {
         ...form,
+        specialties: specialtiesText.split(',').map(s => s.trim()).filter(s => s !== ''),
         galleryImages: normalizedGallery.filter(url => url.trim() !== '')
       };
       await setDoc(doc(db, 'profile', 'main'), dataToSave);
@@ -273,11 +275,8 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
             <input 
               type="text" 
               className="w-full border p-2 text-sm"
-              value={Array.isArray(form.specialties) ? form.specialties.join(', ') : (form.specialties || '')}
-              onChange={(e) => {
-                const val = e.target.value;
-                setForm({ ...form, specialties: val.split(',').map(s => s.trim()).filter(s => s !== '') });
-              }}
+              value={specialtiesText}
+              onChange={(e) => setSpecialtiesText(e.target.value)}
               placeholder="e.g. 무용, 바이올린, 필라테스"
             />
           </div>

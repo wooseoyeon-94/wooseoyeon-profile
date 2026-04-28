@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-interface CloudImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string | undefined;
+interface CloudImageProps {
+  src?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  alt?: string;
+  [key: string]: any;
 }
 
 const cache: Record<string, string> = {};
 
-export default function CloudImage({ src, ...props }: CloudImageProps) {
+export default function CloudImage(props: CloudImageProps) {
+  const { src, className, style, ...rest } = props;
   const [resolvedSrc, setResolvedSrc] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -53,10 +58,10 @@ export default function CloudImage({ src, ...props }: CloudImageProps) {
   }, [src]);
 
   if (loading) {
-    return <div className={`animate-pulse bg-gray-200 ${props.className}`} style={props.style} />;
+    return <div className={`animate-pulse bg-gray-200 ${className || ''}`} style={style} />;
   }
 
   if (!resolvedSrc) return null;
 
-  return <img src={resolvedSrc} {...props} />;
+  return <img src={resolvedSrc} className={className} style={style} {...rest} />;
 }
