@@ -74,9 +74,10 @@ export function usePortfolio() {
               specialties: ['무용', '바이올린', '필라테스'],
               email: 'actor@example.com',
               phone: '010-1234-5678',
-              instagram: 'https://instagram.com',
+              instagram: 'https://instagram.com/yeon_shots',
               mainImageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1920',
-              aboutImageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000'
+              aboutImageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000',
+              galleryImages: []
             });
 
             // Initial Work

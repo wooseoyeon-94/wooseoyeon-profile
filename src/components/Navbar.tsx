@@ -22,7 +22,7 @@ export default function Navbar({ onAdminClick, onHomeClick }: { onAdminClick: ()
           className="text-xs uppercase tracking-[0.4em] font-bold cursor-pointer"
           onClick={onHomeClick}
         >
-          PORTFOLIO
+          배우 우서연 PROFILE
         </motion.div>
 
         {/* Desktop Menu */}

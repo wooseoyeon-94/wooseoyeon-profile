@@ -3,67 +3,42 @@ import { Profile } from '../types';
 
 export default function Landing({ profile }: { profile: Profile | null }) {
   return (
-    <section id="home" className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative h-screen min-h-[700px] flex items-end justify-start overflow-hidden px-8 md:px-20 pb-20">
       {/* Background Image / Placeholder */}
       <div className="absolute inset-0 z-0">
         <img 
           src={profile?.mainImageUrl || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1920'} 
           alt="Main Profile" 
-          className="w-full h-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-1000"
+          className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-1000"
           id="main_hero_img"
         />
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-brand-bg/10" />
       </div>
 
-      <div className="relative z-10 text-center text-white px-6">
-        <motion.p 
+      <div className="relative z-10 text-white mix-blend-difference">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-xs md:text-sm font-light tracking-[0.6em] mb-4 uppercase opacity-80"
+          transition={{ duration: 0.8 }}
         >
-          {profile?.tagline || 'Actor / Performer'}
-        </motion.p>
-        
-        <motion.h1 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-6xl md:text-9xl font-serif mb-6 leading-none"
-        >
-          {profile?.nameKo || '이름 없음'}
-          <span className="block text-xl md:text-3xl mt-4 tracking-[0.3em] font-light uppercase opacity-70">
-            {profile?.nameEn || 'Name Unknown'}
-          </span>
-        </motion.h1>
-
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="flex flex-wrap justify-center gap-8 mt-16"
-        >
-          <a href="#works" className="text-xs uppercase tracking-widest border-b border-white/40 pb-1 hover:border-white transition-all">
-            Works
-          </a>
-          <a href="#about" className="text-xs uppercase tracking-widest border-b border-white/40 pb-1 hover:border-white transition-all">
-            Profile
-          </a>
-          <a href="#about" className="text-xs uppercase tracking-widest border-b border-white/40 pb-1 hover:border-white transition-all">
-            Contact
-          </a>
+          <h1 className="text-2xl md:text-4xl font-serif tracking-widest mb-1">
+            {profile?.nameKo || '우서연'}
+          </h1>
+          <p 
+            className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase px-2 py-0.5 inline-block"
+            style={{ backgroundColor: '#000000', color: '#2c2424' }}
+          >
+            {profile?.nameEn || 'WOO SEOYEON'}
+          </p>
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div 
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center"
-      >
-        <span className="text-[10px] tracking-[0.3em] uppercase text-white/60 mb-2">Scroll</span>
-        <div className="w-[1px] h-12 bg-white/30" />
-      </motion.div>
+      {/* Decorative Text */}
+      <div className="absolute bottom-20 right-8 md:right-20 hidden lg:block z-10 mix-blend-difference">
+        <span className="text-[9px] font-bold tracking-[0.6em] text-white/70 uppercase [writing-mode:vertical-lr]">
+          ACTRESS WOO SEOYEON PROFILE
+        </span>
+      </div>
     </section>
   );
 }

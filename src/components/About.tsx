@@ -1,9 +1,28 @@
-import { motion } from 'motion/react';
-import { Mail, Instagram, Phone, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mail, Instagram, Phone, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Profile } from '../types';
 
 export default function About({ profile }: { profile: Profile | null }) {
+  const [currentIdx, setCurrentIdx] = useState(0);
+
   if (!profile) return null;
+
+  const gallery = profile.galleryImages && profile.galleryImages.length > 0 
+    ? profile.galleryImages 
+    : [profile.aboutImageUrl || profile.mainImageUrl || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000'];
+
+  const nextImage = () => setCurrentIdx((prev) => (prev + 1) % gallery.length);
+  const prevImage = () => setCurrentIdx((prev) => (prev - 1 + gallery.length) % gallery.length);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gallery.length]);
 
   const infoItems = [
     { label: 'HEIGHT', value: profile.height },
@@ -15,19 +34,60 @@ export default function About({ profile }: { profile: Profile | null }) {
     <section id="about" className="py-24 md:py-40 bg-brand-bg">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 md:gap-32 items-center">
-          {/* Profile Image */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="aspect-[3/4] bg-gray-200 overflow-hidden relative border border-brand-text/10"
-          >
-             <img 
-              src={profile.aboutImageUrl || profile.mainImageUrl || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1000'} 
-              alt="About Profile" 
-              className="w-full h-full object-cover grayscale"
-            />
-          </motion.div>
+          {/* Profile Image Gallery */}
+          <div className="flex flex-col space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="aspect-[3/4] bg-gray-200 overflow-hidden relative border border-brand-text/10 group"
+            >
+              <AnimatePresence mode="wait">
+                <motion.img 
+                  key={currentIdx}
+                  src={gallery[currentIdx]} 
+                  alt={`Profile ${currentIdx + 1}`} 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full h-full object-cover"
+                />
+              </AnimatePresence>
+
+              {gallery.length > 1 && (
+                <>
+                  <button 
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button 
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
+            </motion.div>
+
+            {/* Thumbnails */}
+            {gallery.length > 1 && (
+              <div className="grid grid-cols-5 gap-2">
+                {gallery.map((img, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => setCurrentIdx(i)}
+                    className={`aspect-[3/4] border transition-all overflow-hidden ${i === currentIdx ? 'border-brand-text' : 'border-transparent opacity-40 hover:opacity-100'}`}
+                  >
+                    <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Info Content */}
           <motion.div
@@ -58,7 +118,7 @@ export default function About({ profile }: { profile: Profile | null }) {
               ))}
               <div className="flex items-center">
                 <span className="text-[10px] uppercase tracking-widest opacity-40 italic w-24">Social</span>
-                <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">@instagram</a>
+                <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">@yeon_shots</a>
               </div>
             </div>
 

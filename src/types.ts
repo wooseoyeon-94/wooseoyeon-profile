@@ -12,6 +12,7 @@ export interface Profile {
   pdfUrl: string;
   mainImageUrl: string;
   aboutImageUrl: string;
+  galleryImages?: string[];
 }
 
 export interface Work {

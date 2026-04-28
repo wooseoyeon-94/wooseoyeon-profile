@@ -48,7 +48,7 @@ export default function Works({ works, isPreview, onViewAll }: { works: Work[], 
                     <img 
                       src={work.imageUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800'} 
                       alt={work.title} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                     />
                   </div>
                   

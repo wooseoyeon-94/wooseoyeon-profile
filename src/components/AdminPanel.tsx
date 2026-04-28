@@ -108,7 +108,7 @@ export default function AdminPanel({
   );
 }
 
-function ImageInput({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) {
+function ImageInput({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void, key?: React.Key }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,10 +165,17 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
   const [form, setForm] = useState<Partial<Profile>>(profile || {});
   const [isSaving, setIsSaving] = useState(false);
 
+  // Initialize galleryImages with 10 empty strings if it doesn't exist or is shorter
+  const galleryImages = form.galleryImages || [];
+  const normalizedGallery = [...galleryImages, ...Array(10).fill('')].slice(0, 10);
+
   const save = async () => {
     setIsSaving(true);
     try {
-      await setDoc(doc(db, 'profile', 'main'), form);
+      await setDoc(doc(db, 'profile', 'main'), {
+        ...form,
+        galleryImages: normalizedGallery.filter(url => url.trim() !== '')
+      });
       alert('Saved successfully');
     } catch (e) {
       console.error(e);
@@ -193,7 +200,7 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-12">
       <div className="grid grid-cols-2 gap-6">
         {fields.map(f => (
           <div key={f.key} className={f.key.toLowerCase().includes('image') ? 'col-span-2' : ''}>
@@ -212,6 +219,25 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="space-y-6 pt-6 border-t">
+        <h3 className="text-xs font-bold tracking-[0.4em] uppercase text-gray-500">Profile Gallery Photos (Max 10)</h3>
+        <p className="text-[10px] text-gray-400 italic">These images will appear in the About section gallery.</p>
+        <div className="grid grid-cols-1 gap-4">
+          {normalizedGallery.map((url, idx) => (
+            <ImageInput 
+              key={idx}
+              label={`Gallery Image #${idx + 1}`} 
+              value={url} 
+              onChange={(v) => {
+                const newGallery = [...normalizedGallery];
+                newGallery[idx] = v;
+                setForm({ ...form, galleryImages: newGallery });
+              }} 
+            />
+          ))}
+        </div>
       </div>
       <div className="bg-amber-50 p-4 border border-amber-200 text-[10px] text-amber-700 leading-relaxed uppercase tracking-wider">
         Note: Large images (&gt;1MB) may fail to save due to database limits. Please compress images before uploading.
