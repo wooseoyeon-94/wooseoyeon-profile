@@ -110,19 +110,46 @@ export default function AdminPanel({
 
 function ImageInput({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void, key?: React.Key }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 800000) { // ~800KB limit to stay safe with Firestore 1MB doc limit
-      alert('File is too large. Please select an image under 800KB.');
-      return;
-    }
-
+    setIsProcessing(true);
     const reader = new FileReader();
-    reader.onloadend = () => {
-      onChange(reader.result as string);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Max dimension for profile shots - keep it reasonable for Base64 storage
+        const MAX_SIDE = 800;
+        if (width > height) {
+          if (width > MAX_SIDE) {
+            height *= MAX_SIDE / width;
+            width = MAX_SIDE;
+          }
+        } else {
+          if (height > MAX_SIDE) {
+            width *= MAX_SIDE / height;
+            height = MAX_SIDE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Compress as JPEG
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        onChange(compressedDataUrl);
+        setIsProcessing(false);
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -147,15 +174,16 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
         />
         <button 
           type="button"
+          disabled={isProcessing}
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 bg-gray-100 hover:bg-black hover:text-white transition-colors flex items-center justify-center border"
+          className="px-4 bg-gray-100 hover:bg-black hover:text-white transition-colors flex items-center justify-center border disabled:opacity-50"
           title="Upload from computer"
         >
-          <Upload size={14} />
+          {isProcessing ? <div className="w-4 h-4 border-2 border-current border-t-transparent animate-spin rounded-full" /> : <Upload size={14} />}
         </button>
       </div>
       {value && value.startsWith('data:') && (
-        <p className="text-[9px] text-gray-400 italic">Local image uploaded (Stored as Base64)</p>
+        <p className="text-[9px] text-gray-400 italic">Optimized image stored</p>
       )}
     </div>
   );
@@ -165,21 +193,22 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
   const [form, setForm] = useState<Partial<Profile>>(profile || {});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize galleryImages with 10 empty strings if it doesn't exist or is shorter
+  // Initialize galleryImages with 5 empty strings if it doesn't exist or is shorter
   const galleryImages = form.galleryImages || [];
-  const normalizedGallery = [...galleryImages, ...Array(10).fill('')].slice(0, 10);
+  const normalizedGallery = [...galleryImages, ...Array(5).fill('')].slice(0, 5);
 
   const save = async () => {
     setIsSaving(true);
     try {
-      await setDoc(doc(db, 'profile', 'main'), {
+      const dataToSave = {
         ...form,
         galleryImages: normalizedGallery.filter(url => url.trim() !== '')
-      });
+      };
+      await setDoc(doc(db, 'profile', 'main'), dataToSave);
       alert('Saved successfully');
     } catch (e) {
       console.error(e);
-      alert('Failed to save');
+      alert('Failed to save. This usually happens if images are too large (total limit 1MB). Try using fewer images or external URLs.');
     }
     setIsSaving(false);
   };
@@ -222,7 +251,7 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
       </div>
 
       <div className="space-y-6 pt-6 border-t">
-        <h3 className="text-xs font-bold tracking-[0.4em] uppercase text-gray-500">Profile Gallery Photos (Max 10)</h3>
+        <h3 className="text-xs font-bold tracking-[0.4em] uppercase text-gray-500">Profile Gallery Photos (Max 5)</h3>
         <p className="text-[10px] text-gray-400 italic">These images will appear in the About section gallery.</p>
         <div className="grid grid-cols-1 gap-4">
           {normalizedGallery.map((url, idx) => (

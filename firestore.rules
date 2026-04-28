@@ -35,14 +35,23 @@ service cloud.firestore {
     // Profile Rules
     match /profile/{profileId} {
       allow read: if true;
-      allow write: if isValidProfile(incoming());
+      allow write: if isAdmin() && isValidProfile(incoming());
     }
 
     function isValidProfile(data) {
       return data.nameKo is string && data.nameKo.size() <= 100 &&
              data.nameEn is string && data.nameEn.size() <= 100 &&
-             (!('tagline' in data) || (data.tagline is string && data.tagline.size() <= 200)) &&
-             (!('email' in data) || (data.email is string && data.email.size() <= 100));
+             (!('tagline' in data) || (data.tagline is string && data.tagline.size() <= 500)) &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 100)) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 50)) &&
+             (!('height' in data) || (data.height is string && data.height.size() <= 20)) &&
+             (!('weight' in data) || (data.weight is string && data.weight.size() <= 20)) &&
+             (!('shoeSize' in data) || (data.shoeSize is string && data.shoeSize.size() <= 20)) &&
+             (!('instagram' in data) || (data.instagram is string && data.instagram.size() <= 200)) &&
+             (!('mainImageUrl' in data) || (data.mainImageUrl is string && data.mainImageUrl.size() <= 1048576)) &&
+             (!('aboutImageUrl' in data) || (data.aboutImageUrl is string && data.aboutImageUrl.size() <= 1048576)) &&
+             (!('pdfUrl' in data) || (data.pdfUrl is string && data.pdfUrl.size() <= 500)) &&
+             (!('galleryImages' in data) || (data.galleryImages is list && data.galleryImages.size() <= 5));
     }
 
     // Works Rules
