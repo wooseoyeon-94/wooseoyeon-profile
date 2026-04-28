@@ -17,7 +17,8 @@
         "phone": { "type": "string" },
         "pdfUrl": { "type": "string" },
         "mainImageUrl": { "type": "string" },
-        "aboutImageUrl": { "type": "string" }
+        "aboutImageUrl": { "type": "string" },
+        "galleryImages": { "type": "array", "items": { "type": "string" } }
       },
       "required": ["nameKo", "nameEn"]
     },

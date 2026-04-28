@@ -125,8 +125,8 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
         let width = img.width;
         let height = img.height;
 
-        // Max dimension for profile shots - keep it reasonable for Base64 storage
-        const MAX_SIDE = 800;
+        // Max dimension - increased to 1200 for better quality while staying safe
+        const MAX_SIDE = 1200;
         if (width > height) {
           if (width > MAX_SIDE) {
             height *= MAX_SIDE / width;
@@ -144,8 +144,8 @@ function ImageInput({ label, value, onChange }: { label: string, value: string, 
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Compress as JPEG
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        // Compress as JPEG - 0.7 is a good balance for higher resolution
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
         onChange(compressedDataUrl);
         setIsProcessing(false);
       };
@@ -269,7 +269,7 @@ function ProfileForm({ profile }: { profile: Profile | null }) {
         </div>
       </div>
       <div className="bg-amber-50 p-4 border border-amber-200 text-[10px] text-amber-700 leading-relaxed uppercase tracking-wider">
-        Note: Large images (&gt;1MB) may fail to save due to database limits. Please compress images before uploading.
+        Note: Total profile data (including all 7 images) must fit within 1MB. The app automatically optimizes your uploads, but extremely high-res source files might still hit the limit.
       </div>
       <button 
         onClick={save} 
