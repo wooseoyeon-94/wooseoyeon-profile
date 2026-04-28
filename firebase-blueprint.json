@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Actor Profile",
+      "description": "Basic information and contact details of the actor",
+      "type": "object",
+      "properties": {
+        "nameKo": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "tagline": { "type": "string" },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "shoeSize": { "type": "string" },
+        "specialties": { "type": "array", "items": { "type": "string" } },
+        "instagram": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "mainImageUrl": { "type": "string" },
+        "aboutImageUrl": { "type": "string" }
+      },
+      "required": ["nameKo", "nameEn"]
+    },
+    "Work": {
+      "title": "Acting Work",
+      "description": "Details of a film, drama, or performance",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "genre": { "type": "string" },
+        "year": { "type": "string" },
+        "director": { "type": "string" },
+        "characterName": { "type": "string" },
+        "characterDescription": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageUrls": { "type": "array", "items": { "type": "string" } },
+        "videoUrl": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "year"]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Feedback from co-workers",
+      "type": "object",
+      "properties": {
+        "quote": { "type": "string" },
+        "author": { "type": "string" },
+        "role": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["quote", "author"]
+    },
+    "Asset": {
+      "title": "Actor Asset",
+      "description": "Costumes, props, and licenses",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string", "enum": ["tops", "bottoms", "shoes", "others"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["category", "name"]
+    }
+  },
+  "firestore": {
+    "profile/main": {
+      "schema": "Profile",
+      "description": "The main profile of the actor"
+    },
+    "works": {
+      "schema": "Work",
+      "description": "Collection of acting works"
+    },
+    "testimonials": {
+      "schema": "Testimonial",
+      "description": "Collection of testimonials"
+    },
+    "assets": {
+      "schema": "Asset",
+      "description": "Collection of costumes, props, and licenses"
+    }
+  }
+}

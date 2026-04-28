@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isEmailVerified() && 
+             (request.auth.token.email == 'jm01hyj@gmail.com');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Profile Rules
+    match /profile/{profileId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidProfile(incoming());
+    }
+
+    function isValidProfile(data) {
+      return data.nameKo is string && data.nameKo.size() <= 100 &&
+             data.nameEn is string && data.nameEn.size() <= 100 &&
+             (!('tagline' in data) || (data.tagline is string && data.tagline.size() <= 200)) &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 100));
+    }
+
+    // Works Rules
+    match /works/{workId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidWork(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidWork(data) {
+      return data.title is string && data.title.size() <= 200 &&
+             data.year is string && data.year.size() <= 20 &&
+             (!('genre' in data) || (data.genre is string && data.genre.size() <= 100)) &&
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 1048576)) &&
+             (!('imageUrls' in data) || (data.imageUrls is list && data.imageUrls.size() <= 3)) &&
+             (!('characterDescription' in data) || (data.characterDescription is string && data.characterDescription.size() <= 2000));
+    }
+
+    // Testimonials Rules
+    match /testimonials/{testId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidTestimonial(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidTestimonial(data) {
+      return data.quote is string && data.quote.size() <= 1000 &&
+             data.author is string && data.author.size() <= 100;
+    }
+
+    // Assets Rules
+    match /assets/{assetId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidAsset(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidAsset(data) {
+      return data.category in ['tops', 'bottoms', 'shoes', 'others'] &&
+             data.name is string && data.name.size() <= 200 &&
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 1048576)) &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 2000));
+    }
+  }
+}
