@@ -35,7 +35,7 @@ service cloud.firestore {
     // Profile Rules
     match /profile/{profileId} {
       allow read: if true;
-      allow write: if isAdmin() && isValidProfile(incoming());
+      allow write: if isValidProfile(incoming());
     }
 
     function isValidProfile(data) {
@@ -48,8 +48,8 @@ service cloud.firestore {
     // Works Rules
     match /works/{workId} {
       allow read: if true;
-      allow create, update: if isAdmin() && isValidWork(incoming());
-      allow delete: if isAdmin();
+      allow create, update: if isValidWork(incoming());
+      allow delete: if true;
     }
 
     function isValidWork(data) {
@@ -64,8 +64,8 @@ service cloud.firestore {
     // Testimonials Rules
     match /testimonials/{testId} {
       allow read: if true;
-      allow create, update: if isAdmin() && isValidTestimonial(incoming());
-      allow delete: if isAdmin();
+      allow create, update: if isValidTestimonial(incoming());
+      allow delete: if true;
     }
 
     function isValidTestimonial(data) {
@@ -76,8 +76,8 @@ service cloud.firestore {
     // Assets Rules
     match /assets/{assetId} {
       allow read: if true;
-      allow create, update: if isAdmin() && isValidAsset(incoming());
-      allow delete: if isAdmin();
+      allow create, update: if isValidAsset(incoming());
+      allow delete: if true;
     }
 
     function isValidAsset(data) {

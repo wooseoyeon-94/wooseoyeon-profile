@@ -78,26 +78,6 @@ export default function AdminPanel({
                 </button>
               </form>
             </div>
-          ) : !isAdmin ? (
-             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                <AlertCircle className="text-yellow-500 mb-6" size={48} />
-                <h3 className="text-xl font-serif mb-4">Authentication Required</h3>
-                <p className="text-sm text-gray-500 mb-8 max-w-xs mx-auto">
-                  To save changes to the database, you must sign in with the authorized Google account.
-                </p>
-                <button 
-                  onClick={signInWithGoogle}
-                  className="px-8 py-4 bg-black text-white text-xs font-bold tracking-widest uppercase flex items-center space-x-3"
-                >
-                  <LogIn size={14} />
-                  <span>Sign in with Google</span>
-                </button>
-                {user && !isAdmin && (
-                   <p className="text-red-500 text-[10px] mt-4">
-                     Logged in as {user.email}, but this account is not authorized.
-                   </p>
-                )}
-             </div>
           ) : (
             <div className="flex-1 overflow-hidden flex flex-col">
               {/* Tabs */}

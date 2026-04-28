@@ -19,8 +19,8 @@ export function usePortfolio() {
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      // Hardcoded admin email from user metadata / request
-      setIsAdmin(u?.email === 'jm01hyj@gmail.com');
+      // Removed identity-based admin check as requested to use only password
+      setIsAdmin(true); 
     });
 
     // Profile listener
@@ -65,13 +65,13 @@ export function usePortfolio() {
         getDoc(doc(db, 'profile', 'main')).then(async (profileSnap) => {
           if (!profileSnap.exists()) {
             await setDoc(doc(db, 'profile', 'main'), {
-              nameKo: '김배우',
-              nameEn: 'KIM ACTOR',
+              nameKo: '우서연',
+              nameEn: 'WOO SEOYEON',
               tagline: '몰입하는 배우, 진심을 전하는 연기',
-              height: '180cm',
-              weight: '75kg',
-              shoeSize: '270mm',
-              specialties: ['사투리', '액션', '승마'],
+              height: '168cm',
+              weight: '48kg',
+              shoeSize: '240mm',
+              specialties: ['무용', '바이올린', '필라테스'],
               email: 'actor@example.com',
               phone: '010-1234-5678',
               instagram: 'https://instagram.com',

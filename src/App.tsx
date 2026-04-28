@@ -56,7 +56,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="text-center md:text-left">
             <p className="text-[10px] tracking-[0.3em] font-bold text-gray-400 uppercase mb-2 cursor-pointer" onClick={() => navigateTo('main')}>
-              © 2024 {data.profile?.nameEn || 'ACTOR PORTFOLIO'}
+              © 2024 ACTRESS WOO SEOYEON
             </p>
             <p className="text-[10px] tracking-[0.1em] text-gray-300 uppercase">
               Professional Performance Portfolio
